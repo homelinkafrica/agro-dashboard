@@ -4,8 +4,13 @@ import { NextStepCard } from "@/components/dashboard/next-step-card";
 import { TasksCard } from "@/components/dashboard/tasks-card";
 import { TrialBanner } from "@/components/dashboard/trial-banner";
 import { WeatherCard } from "@/components/dashboard/weather-card";
+import { getCurrentUser } from "@/lib/auth/dal";
+import { getTrialDaysLeft } from "@/lib/trial";
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
+  const daysLeft = getTrialDaysLeft(user.trialEndsAt);
+
   return (
     <div className="flex flex-col">
       <div className="px-4 pt-6 sm:px-6">
@@ -25,7 +30,7 @@ export default function Home() {
       </div>
 
       <div className="mt-auto">
-        <TrialBanner />
+        <TrialBanner daysLeft={daysLeft} />
       </div>
     </div>
   );

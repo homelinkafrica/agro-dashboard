@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Bell,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   HelpCircle,
@@ -12,13 +12,15 @@ import {
   UploadCloud,
   UserRound,
 } from "lucide-react";
+import type { SessionUser } from "@/lib/auth/types";
 import { useSidebar } from "./sidebar-context";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
-export function Header() {
+export function Header({ user }: { user: SessionUser }) {
   const { toggleCollapsed, openMobile } = useSidebar();
   const [campaignYear, setCampaignYear] = useState(CURRENT_YEAR);
+  const initial = user.fullName.trim().charAt(0).toUpperCase() || "?";
 
   return (
     <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2 border-b border-zinc-200 bg-zinc-900 px-3 text-zinc-100 sm:px-4">
@@ -37,18 +39,14 @@ export function Header() {
         <Menu className="h-5 w-5" />
       </button>
 
-      <button
-        type="button"
-        className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-zinc-800"
-      >
+      <div className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5">
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-600 text-sm font-semibold text-white">
-          Y
+          {initial}
         </span>
         <span className="truncate text-sm font-semibold tracking-wide uppercase">
-          Your Farm | Your Name
+          {user.fullName}
         </span>
-        <ChevronDown className="h-4 w-4 shrink-0 text-zinc-400" />
-      </button>
+      </div>
 
       <div className="hidden items-center gap-1 rounded-lg border border-green-600/60 px-1 py-1 text-green-400 sm:flex">
         <button
@@ -86,9 +84,14 @@ export function Header() {
         <IconButton label="What's new" className="hidden sm:flex">
           <PartyPopper className="h-5 w-5" />
         </IconButton>
-        <IconButton label="Account">
+        <Link
+          href="/profile"
+          title="Profile"
+          aria-label="Profile"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-300 hover:bg-zinc-800 hover:text-white"
+        >
           <UserRound className="h-5 w-5" />
-        </IconButton>
+        </Link>
         <button
           type="button"
           className="hidden items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium hover:bg-zinc-800 sm:flex"

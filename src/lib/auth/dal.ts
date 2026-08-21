@@ -20,7 +20,11 @@ export const getCurrentUser = cache(async (): Promise<SessionUser> => {
   const user = findUserById(userId);
 
   if (!user) {
-    redirect("/login");
+    // The signed cookie is valid but points to a user that no longer exists
+    // (e.g. the in-memory mock database was reset). Server Components can't
+    // clear cookies themselves, so hand off to a route handler that can —
+    // otherwise a stale cookie would bounce forever between "/" and "/login".
+    redirect("/api/clear-session");
   }
 
   const { passwordHash: _passwordHash, ...safeUser } = user;

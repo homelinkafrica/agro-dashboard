@@ -1,24 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import {
-  createUser,
-  findUserByPhone,
-  issueOtp,
-  markPhoneVerified,
-  updateUserPassword,
-  verifyOtp,
-} from "./db";
+import { createUser, findUserByPhone, issueOtp, updateUserPassword, verifyOtp } from "./db";
 import { hashPassword, verifyPassword } from "./password";
 import { createSession, deleteSession } from "./session";
 import type { OtpPurpose } from "./types";
-import {
-  LoginSchema,
-  RegisterSchema,
-  RequestOtpSchema,
-  ResetPasswordSchema,
-  VerifyOtpSchema,
-} from "./validation";
+import { LoginSchema, RegisterSchema, RequestOtpSchema, ResetPasswordSchema } from "./validation";
 
 export type ActionState =
   | {
@@ -30,12 +17,6 @@ export type ActionState =
   | undefined;
 
 const isDev = process.env.NODE_ENV !== "production";
-
-function verifyPhonePath(phone: string, devOtp?: string) {
-  const params = new URLSearchParams({ phone });
-  if (isDev && devOtp) params.set("dev_otp", devOtp);
-  return `/verify-phone?${params.toString()}`;
-}
 
 function resetPasswordPath(phone: string, devOtp?: string) {
   const params = new URLSearchParams({ phone });
@@ -69,37 +50,9 @@ export async function registerAction(
     return { errors: { phone: ["An account with this phone number already exists."] }, values: raw };
   }
 
+  // Identity verification (SMS OTP, etc.) is the backend's responsibility —
+  // this just creates the account and signs the user in directly.
   const user = createUser({ fullName, phone, email, password });
-  const devOtp = issueOtp(user.phone, "verify-phone");
-
-  redirect(verifyPhonePath(user.phone, devOtp));
-}
-
-export async function verifyPhoneAction(
-  _prevState: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
-  const validated = VerifyOtpSchema.safeParse({
-    phone: formData.get("phone"),
-    code: formData.get("code"),
-  });
-
-  if (!validated.success) {
-    return { errors: validated.error.flatten().fieldErrors };
-  }
-
-  const { phone, code } = validated.data;
-
-  if (!verifyOtp(phone, "verify-phone", code)) {
-    return { message: "That code is invalid or has expired." };
-  }
-
-  const user = findUserByPhone(phone);
-  if (!user) {
-    return { message: "We couldn't find that account. Please register again." };
-  }
-
-  markPhoneVerified(user.id);
   await createSession(user.id);
   redirect("/");
 }
@@ -134,11 +87,6 @@ export async function loginAction(
 
   if (!user || !verifyPassword(password, user.passwordHash)) {
     return { message: "Incorrect phone number or password.", values: raw };
-  }
-
-  if (!user.phoneVerified) {
-    const devOtp = issueOtp(user.phone, "verify-phone");
-    redirect(verifyPhonePath(user.phone, devOtp));
   }
 
   await createSession(user.id);

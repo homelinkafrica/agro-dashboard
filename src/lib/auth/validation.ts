@@ -50,11 +50,6 @@ export const RequestOtpSchema = z.object({
   phone: phoneField,
 });
 
-export const VerifyOtpSchema = z.object({
-  phone: phoneField,
-  code: otpField,
-});
-
 export const ResetPasswordSchema = z
   .object({
     phone: phoneField,

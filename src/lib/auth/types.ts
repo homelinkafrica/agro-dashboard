@@ -5,7 +5,6 @@ export type User = {
   phone: string;
   email: string | null;
   address: string;
-  phoneVerified: boolean;
   passwordHash: string;
   createdAt: string;
   trialEndsAt: string;
@@ -14,7 +13,7 @@ export type User = {
 /** Safe subset of a User that is fine to send to the client. */
 export type SessionUser = Omit<User, "passwordHash">;
 
-export type OtpPurpose = "verify-phone" | "reset-password";
+export type OtpPurpose = "reset-password";
 
 export type SessionPayload = {
   userId: string;

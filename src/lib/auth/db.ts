@@ -49,7 +49,6 @@ export function createUser(input: {
     phone: input.phone,
     email: input.email,
     address: "Uganda",
-    phoneVerified: false,
     passwordHash: hashPassword(input.password),
     createdAt: now.toISOString(),
     trialEndsAt: trialEndsAt.toISOString(),
@@ -57,11 +56,6 @@ export function createUser(input: {
 
   users.push(user);
   return user;
-}
-
-export function markPhoneVerified(userId: string): void {
-  const user = users.find((u) => u.id === userId);
-  if (user) user.phoneVerified = true;
 }
 
 export function updateUserPassword(userId: string, passwordHash: string): void {
@@ -89,4 +83,15 @@ export function verifyOtp(phone: string, purpose: OtpPurpose, code: string): boo
   if (isValid) otpsByKey.delete(key);
 
   return isValid;
+}
+
+// Dev-only seed account so the app is immediately usable without going through
+// registration. Never seeded in production — a hardcoded password has no place there.
+if (process.env.NODE_ENV !== "production") {
+  createUser({
+    fullName: "Byasi Solomon",
+    phone: "+256786082882",
+    email: "solomonbyasi@gmail.com",
+    password: "Comp1234",
+  });
 }

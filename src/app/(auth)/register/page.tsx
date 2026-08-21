@@ -6,7 +6,7 @@ export default function RegisterPage() {
   return (
     <AuthCard
       title="Create your account"
-      subtitle="We'll text you a code to verify your phone number."
+      subtitle="Set up your account to start managing your farm."
       footer={
         <p>
           Already have an account?{" "}

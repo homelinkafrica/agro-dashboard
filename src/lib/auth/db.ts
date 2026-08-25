@@ -34,6 +34,11 @@ export function findUserById(id: string): User | undefined {
   return users.find((user) => user.id === id);
 }
 
+/** First seeded/registered user, used as a fallback when login has no other identity to sign in as. */
+export function getFirstUser(): User | undefined {
+  return users[0];
+}
+
 export function createUser(input: {
   fullName: string;
   phone: string;

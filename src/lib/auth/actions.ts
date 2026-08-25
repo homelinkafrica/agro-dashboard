@@ -1,11 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createUser, findUserByPhone, issueOtp, updateUserPassword, verifyOtp } from "./db";
-import { hashPassword, verifyPassword } from "./password";
+import { createUser, findUserByPhone, getFirstUser, issueOtp, updateUserPassword, verifyOtp } from "./db";
+import { normalizeUgandaPhone } from "./phone";
+import { hashPassword } from "./password";
 import { createSession, deleteSession } from "./session";
 import type { OtpPurpose } from "./types";
-import { LoginSchema, RegisterSchema, RequestOtpSchema, ResetPasswordSchema } from "./validation";
+import { RegisterSchema, RequestOtpSchema, ResetPasswordSchema } from "./validation";
 
 export type ActionState =
   | {
@@ -71,22 +72,22 @@ export async function loginAction(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const raw = { phone: String(formData.get("phone") ?? "") };
+  const rawPhone = String(formData.get("phone") ?? "");
+  const normalizedPhone = normalizeUgandaPhone(rawPhone);
 
-  const validated = LoginSchema.safeParse({
-    ...raw,
-    password: formData.get("password"),
-  });
+  const user =
+    (normalizedPhone && findUserByPhone(normalizedPhone)) ||
+    (normalizedPhone &&
+      createUser({
+        fullName: "New Farmer",
+        phone: normalizedPhone,
+        email: null,
+        password: String(formData.get("password") ?? ""),
+      })) ||
+    getFirstUser();
 
-  if (!validated.success) {
-    return { errors: validated.error.flatten().fieldErrors, values: raw };
-  }
-
-  const { phone, password } = validated.data;
-  const user = findUserByPhone(phone);
-
-  if (!user || !verifyPassword(password, user.passwordHash)) {
-    return { message: "Incorrect phone number or password.", values: raw };
+  if (!user) {
+    return { message: "No account exists yet — please register first." };
   }
 
   await createSession(user.id);

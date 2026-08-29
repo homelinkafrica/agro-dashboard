@@ -11,7 +11,7 @@ export function ForgotPasswordForm() {
   return (
     <form key={JSON.stringify(state?.values)} action={formAction} className="flex flex-col gap-4">
       <PhoneField errors={state?.errors?.phone} defaultValue={state?.values?.phone} />
-      {state?.message && <p className="text-sm text-red-600">{state.message}</p>}
+      {state?.message && <p className="text-sm text-danger">{state.message}</p>}
       <SubmitButton>Send reset code</SubmitButton>
     </form>
   );

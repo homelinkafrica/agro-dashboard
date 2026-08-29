@@ -1,7 +1,9 @@
 import { FarmsTable } from "@/components/farms/farms-table";
-import { sampleFarms } from "@/lib/farms/sample-data";
+import { listFarms } from "@/lib/farms/db";
 
 export default function FarmsPage() {
+  const farms = listFarms();
+
   return (
     <div className="flex flex-col gap-4 px-4 py-6 sm:px-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -22,7 +24,7 @@ export default function FarmsPage() {
         </div>
       </div>
 
-      <FarmsTable farms={sampleFarms} />
+      <FarmsTable farms={farms} />
     </div>
   );
 }

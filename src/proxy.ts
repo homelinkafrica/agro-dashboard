@@ -6,7 +6,11 @@ const AUTH_ROUTES = ["/login", "/register", "/forgot-password", "/reset-password
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const isAuthRoute = AUTH_ROUTES.includes(pathname);
+  // Prefix match so the per-account-type signup steps (/register/farmer, …)
+  // are reachable while signed out, just like /register itself.
+  const isAuthRoute = AUTH_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
 
   const token = req.cookies.get("session")?.value;
   const session = await decryptSessionToken(token);

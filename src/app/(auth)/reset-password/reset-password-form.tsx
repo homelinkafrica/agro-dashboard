@@ -36,7 +36,7 @@ export function ResetPasswordForm({ phone }: { phone: string }) {
         errors={state?.errors?.confirmPassword}
       />
 
-      {state?.message && <p className="text-sm text-red-600">{state.message}</p>}
+      {state?.message && <p className="text-sm text-danger">{state.message}</p>}
 
       <SubmitButton>Reset password</SubmitButton>
     </form>

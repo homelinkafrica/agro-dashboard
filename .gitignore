@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+# This project installs with npm (package-lock.json). A second lockfile makes
+# the package manager ambiguous on CI — keep yarn.lock out of the repo.
+yarn.lock
 /.pnp
 .pnp.*
 .yarn/*

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { normalizeUgandaPhone } from "./phone";
 
-const phoneField = z
+export const phoneField = z
   .string()
   .trim()
   .min(1, { error: "Phone number is required." })
@@ -14,7 +14,7 @@ const phoneField = z
     return normalized;
   });
 
-const passwordField = z
+export const passwordField = z
   .string()
   .min(8, { error: "Password must be at least 8 characters." })
   .regex(/[a-zA-Z]/, { error: "Password must contain at least one letter." })
@@ -24,22 +24,6 @@ const otpField = z
   .string()
   .trim()
   .regex(/^\d{6}$/, { error: "Enter the 6-digit code." });
-
-export const RegisterSchema = z
-  .object({
-    fullName: z.string().trim().min(2, { error: "Enter your full name." }),
-    phone: phoneField,
-    email: z
-      .union([z.email({ error: "Enter a valid email." }), z.literal("")])
-      .optional()
-      .transform((value) => (value ? value : null)),
-    password: passwordField,
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    error: "Passwords do not match.",
-    path: ["confirmPassword"],
-  });
 
 export const LoginSchema = z.object({
   phone: phoneField,

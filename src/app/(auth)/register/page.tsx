@@ -1,22 +1,23 @@
 import Link from "next/link";
-import { AuthCard } from "@/components/auth/auth-card";
-import { RegisterForm } from "./register-form";
+import { AccountTypeForm } from "@/components/onboarding/account-type-form";
+import { OnboardingShell } from "@/components/onboarding/onboarding-shell";
 
 export default function RegisterPage() {
   return (
-    <AuthCard
+    <OnboardingShell
+      step={1}
       title="Create your account"
-      subtitle="Set up your account to start managing your farm."
+      subtitle="Choose how you'll be using the platform"
       footer={
         <p>
           Already have an account?{" "}
           <Link href="/login" className="font-medium text-green-600 hover:text-green-700">
-            Sign in
+            Log in
           </Link>
         </p>
       }
     >
-      <RegisterForm />
-    </AuthCard>
+      <AccountTypeForm />
+    </OnboardingShell>
   );
 }

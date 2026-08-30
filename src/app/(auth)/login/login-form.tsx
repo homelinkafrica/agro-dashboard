@@ -31,13 +31,13 @@ export function LoginForm() {
           className="block w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none"
         />
         {state?.errors?.password?.map((error) => (
-          <p key={error} className="mt-1.5 text-sm text-red-600">
+          <p key={error} className="mt-1.5 text-sm text-danger">
             {error}
           </p>
         ))}
       </div>
 
-      {state?.message && <p className="text-sm text-red-600">{state.message}</p>}
+      {state?.message && <p className="text-sm text-danger">{state.message}</p>}
 
       <SubmitButton>Sign in</SubmitButton>
     </form>

@@ -22,7 +22,7 @@ export function FormField({
         {...inputProps}
       />
       {errors?.map((error) => (
-        <p key={error} className="mt-1.5 text-sm text-red-600">
+        <p key={error} className="mt-1.5 text-sm text-danger">
           {error}
         </p>
       ))}

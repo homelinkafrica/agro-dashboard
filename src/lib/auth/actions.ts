@@ -6,14 +6,14 @@ import { normalizeUgandaPhone } from "./phone";
 import { hashPassword } from "./password";
 import { createSession, deleteSession } from "./session";
 import type { OtpPurpose } from "./types";
-import { RegisterSchema, RequestOtpSchema, ResetPasswordSchema } from "./validation";
+import { RequestOtpSchema, ResetPasswordSchema } from "./validation";
 
-export type ActionState =
+export type ActionState<Values = Record<string, string>> =
   | {
       errors?: Record<string, string[]>;
       message?: string;
       /** Non-sensitive submitted values, echoed back so the form can refill itself after an error. */
-      values?: Record<string, string>;
+      values?: Values;
     }
   | undefined;
 
@@ -23,39 +23,6 @@ function resetPasswordPath(phone: string, devOtp?: string) {
   const params = new URLSearchParams({ phone });
   if (isDev && devOtp) params.set("dev_otp", devOtp);
   return `/reset-password?${params.toString()}`;
-}
-
-export async function registerAction(
-  _prevState: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
-  const raw = {
-    fullName: String(formData.get("fullName") ?? ""),
-    phone: String(formData.get("phone") ?? ""),
-    email: String(formData.get("email") ?? ""),
-  };
-
-  const validated = RegisterSchema.safeParse({
-    ...raw,
-    password: formData.get("password"),
-    confirmPassword: formData.get("confirmPassword"),
-  });
-
-  if (!validated.success) {
-    return { errors: validated.error.flatten().fieldErrors, values: raw };
-  }
-
-  const { fullName, phone, email, password } = validated.data;
-
-  if (findUserByPhone(phone)) {
-    return { errors: { phone: ["An account with this phone number already exists."] }, values: raw };
-  }
-
-  // Identity verification (SMS OTP, etc.) is the backend's responsibility —
-  // this just creates the account and signs the user in directly.
-  const user = createUser({ fullName, phone, email, password });
-  await createSession(user.id);
-  redirect("/");
 }
 
 export async function resendOtpAction(
@@ -79,6 +46,7 @@ export async function loginAction(
     (normalizedPhone && findUserByPhone(normalizedPhone)) ||
     (normalizedPhone &&
       createUser({
+        accountType: "farmer",
         fullName: "New Farmer",
         phone: normalizedPhone,
         email: null,

@@ -70,7 +70,7 @@ export function OtpInput({ error }: { error?: string[] }) {
         ))}
       </div>
       {error?.map((message) => (
-        <p key={message} className="mt-1.5 text-sm text-red-600">
+        <p key={message} className="mt-1.5 text-sm text-danger">
           {message}
         </p>
       ))}

@@ -58,7 +58,9 @@ export function FarmsTable({ farms }: { farms: Farm[] }) {
                     <span className="font-medium text-zinc-900">{farm.name}</span>
                   </div>
                 </td>
-                <td className="px-5 py-3 text-zinc-700">{farm.areaHectares} ha</td>
+                <td className="px-5 py-3 text-zinc-700">
+                  {farm.areaHectares != null ? `${farm.areaHectares} ha` : "Not set"}
+                </td>
                 <td className="px-5 py-3 text-zinc-700">{farm.fieldCount}</td>
                 <td className="px-5 py-3 text-zinc-700">{farm.farmerName}</td>
                 <td className="px-5 py-3 text-zinc-700">{farm.email}</td>

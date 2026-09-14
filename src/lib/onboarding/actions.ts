@@ -94,6 +94,7 @@ export async function registerFarmerAction(
     fullName: text(formData, "fullName"),
     phone: text(formData, "phone"),
     email: text(formData, "email"),
+    credentialType: text(formData, "credentialType"),
     preferredLanguage: text(formData, "preferredLanguage"),
     district: text(formData, "district"),
     subCounty: text(formData, "subCounty"),
@@ -102,6 +103,7 @@ export async function registerFarmerAction(
   const validated = FarmerSignupSchema.safeParse({
     ...values,
     password: formData.get("password"),
+    pin: formData.get("pin"),
   });
 
   if (!validated.success) {
@@ -130,7 +132,7 @@ export async function registerFarmerAction(
     fullName: data.fullName,
     phone: data.phone,
     email: data.email,
-    password: data.password,
+    password: data.credential,
     district: data.district,
     subCounty: data.subCounty,
     preferredLanguage: data.preferredLanguage,
@@ -211,6 +213,7 @@ export async function registerProviderAction(
 ): Promise<ActionState<ProviderFormValues>> {
   const values: ProviderFormValues = {
     providerRole: text(formData, "providerRole"),
+    professionalTitle: text(formData, "professionalTitle"),
     workMode: text(formData, "workMode"),
     cooperativeCode: text(formData, "cooperativeCode"),
     serviceAreas: textList(formData, "serviceAreas"),
@@ -261,10 +264,11 @@ export async function registerProviderAction(
     cooperativeStatus: isAffiliated ? "pending" : "none",
     providerProfile: {
       role: data.providerRole,
+      professionalTitle: data.professionalTitle,
       workMode: data.workMode,
       serviceAreas: isAffiliated ? [] : data.serviceAreas,
       services: isAffiliated ? [] : data.services,
-      licenseNumber: isAffiliated ? null : (data.licenseNumber ?? null),
+      licenseNumber: data.licenseNumber ?? null,
     },
   });
 
@@ -286,15 +290,25 @@ export async function createFarmAction(
     district: text(formData, "district"),
     areaHectares: text(formData, "areaHectares"),
     fieldCount: text(formData, "fieldCount"),
+    enterpriseTypes: textList(formData, "enterpriseTypes"),
+    latitude: text(formData, "latitude"),
+    longitude: text(formData, "longitude"),
   };
 
   const errors: Record<string, string[]> = {};
-  if (values.name.length < 2) errors.name = ["Enter a name for your farm."];
   if (!values.district) errors.district = ["Select the district your farm is in."];
+  if (values.enterpriseTypes.length === 0) {
+    errors.enterpriseTypes = ["Select at least one enterprise type."];
+  }
 
-  const areaHectares = Number(values.areaHectares);
-  if (!values.areaHectares || Number.isNaN(areaHectares) || areaHectares <= 0) {
-    errors.areaHectares = ["Enter the farm size in hectares."];
+  // Name and farm size are both optional — kept short on purpose so this
+  // screen doesn't block getting into the app.
+  let areaHectares: number | null = null;
+  if (values.areaHectares) {
+    areaHectares = Number(values.areaHectares);
+    if (Number.isNaN(areaHectares) || areaHectares <= 0) {
+      errors.areaHectares = ["Enter a positive number, or leave this blank."];
+    }
   }
 
   const fieldCount = values.fieldCount ? Number(values.fieldCount) : 0;
@@ -306,13 +320,19 @@ export async function createFarmAction(
     return { errors, values };
   }
 
+  const latitude = values.latitude ? Number(values.latitude) : null;
+  const longitude = values.longitude ? Number(values.longitude) : null;
+
   createFarm({
-    name: values.name,
+    name: values.name.trim() || `${user.fullName}'s farm`,
     areaHectares,
     fieldCount: Math.round(fieldCount),
     farmerName: user.fullName,
     email: user.email ?? "",
     address: values.district,
+    enterpriseTypes: values.enterpriseTypes,
+    latitude: latitude != null && !Number.isNaN(latitude) ? latitude : null,
+    longitude: longitude != null && !Number.isNaN(longitude) ? longitude : null,
   });
 
   redirect("/");

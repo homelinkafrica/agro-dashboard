@@ -41,6 +41,9 @@ const optionalTextField = z
   .optional()
   .transform((value) => (value ? value : null));
 
+/** 4–6 digit PIN — the preferred credential for feature-phone-adjacent farmers. */
+const pinField = z.string().regex(/^\d{4,6}$/, { error: "Enter a 4–6 digit PIN." });
+
 export const AccountTypeSchema = z.enum(ACCOUNT_TYPES, {
   error: "Select an account type to continue.",
 });
@@ -54,7 +57,11 @@ export const FarmerSignupSchema = z
     fullName: fullNameField,
     phone: phoneField,
     email: optionalEmailField,
-    password: passwordField,
+    credentialType: z.enum(["password", "pin"]).default("password"),
+    // Whichever of these isn't rendered arrives as null (FormData.get on a
+    // missing field), not undefined — .nullish() accepts both.
+    password: z.string().nullish(),
+    pin: z.string().nullish(),
     preferredLanguage: languageField,
     district: districtField,
     subCounty: subCountyField,
@@ -67,11 +74,28 @@ export const FarmerSignupSchema = z
         message: "Enter your cooperative code, or search for it by name or district.",
       });
     }
+
+    if (data.credentialType === "pin") {
+      if (!pinField.safeParse(data.pin ?? "").success) {
+        ctx.addIssue({ code: "custom", path: ["pin"], message: "Enter a 4–6 digit PIN." });
+      }
+    } else {
+      const result = passwordField.safeParse(data.password ?? "");
+      if (!result.success) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["password"],
+          message: result.error.issues[0]?.message ?? "Enter a valid password.",
+        });
+      }
+    }
   })
   .transform((data) => ({
     ...data,
     cooperativeCode:
       data.belongsToCooperative === "yes" ? (data.cooperativeCode ?? "").toUpperCase() : null,
+    // A PIN is just a short numeric password — same hashing pipeline either way.
+    credential: data.credentialType === "pin" ? data.pin! : data.password!,
   }));
 
 export const CooperativeSignupSchema = z.object({
@@ -91,6 +115,10 @@ export const CooperativeSignupSchema = z.object({
 export const ProviderSignupSchema = z
   .object({
     providerRole: z.enum(values(PROVIDER_ROLES), { error: "Select your role." }),
+    professionalTitle: z
+      .string()
+      .trim()
+      .min(2, { error: "Enter a professional title, e.g. \"Veterinary officer\"." }),
     workMode: z.enum(["independent", "affiliated"], {
       error: "Tell us how you'll be working.",
     }),
@@ -113,30 +141,30 @@ export const ProviderSignupSchema = z
           message: "Enter the cooperative's code, or search for it by name or district.",
         });
       }
-      return;
+    } else {
+      if (data.serviceAreas.length === 0) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["serviceAreas"],
+          message: "Select at least one district you cover.",
+        });
+      }
+
+      if (data.services.length === 0) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["services"],
+          message: "Select at least one service you offer.",
+        });
+      }
     }
 
-    if (data.serviceAreas.length === 0) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["serviceAreas"],
-        message: "Select at least one district you cover.",
-      });
-    }
-
-    if (data.services.length === 0) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["services"],
-        message: "Select at least one service you offer.",
-      });
-    }
-
-    if (!data.licenseNumber) {
+    // A license is required for vets on either work mode; optional for other roles.
+    if (data.providerRole === "vet" && !data.licenseNumber) {
       ctx.addIssue({
         code: "custom",
         path: ["licenseNumber"],
-        message: "Enter your license or registration number.",
+        message: "Enter your veterinary license or registration number.",
       });
     }
   });

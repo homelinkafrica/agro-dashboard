@@ -9,11 +9,14 @@ export type CooperativeStatus = "none" | "member" | "admin" | "pending";
 
 export type ProviderProfile = {
   role: string;
+  /** Free-text title shown on the public profile, e.g. "Veterinary officer". */
+  professionalTitle: string;
   workMode: ProviderWorkMode;
   /** Districts the provider covers — independent providers only. */
   serviceAreas: string[];
   /** Service slugs from SERVICES_OFFERED — independent providers only. */
   services: string[];
+  /** Required for vets on either work mode; optional for other roles. */
   licenseNumber: string | null;
 };
 

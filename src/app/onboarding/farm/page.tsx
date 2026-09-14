@@ -19,7 +19,7 @@ export default async function FarmSetupPage() {
         </p>
       }
     >
-      <FarmSetupForm defaultDistrict={user.district} />
+      <FarmSetupForm defaultDistrict={user.district} suggestedName={`${user.fullName}'s farm`} />
     </OnboardingShell>
   );
 }

@@ -17,10 +17,18 @@ const MEMBERSHIP_OPTIONS = [
   { value: "no", label: "No" },
 ] as const;
 
+const CREDENTIAL_OPTIONS = [
+  { value: "password", label: "Password" },
+  { value: "pin", label: "4–6 digit PIN" },
+] as const;
+
 export function FarmerForm() {
   const [state, formAction] = useActionState(registerFarmerAction, undefined);
   const [belongsToCooperative, setBelongsToCooperative] = useState<"yes" | "no">(
     state?.values?.belongsToCooperative === "yes" ? "yes" : "no",
+  );
+  const [credentialType, setCredentialType] = useState<"password" | "pin">(
+    state?.values?.credentialType === "pin" ? "pin" : "password",
   );
 
   return (
@@ -67,14 +75,38 @@ export function FarmerForm() {
           errors={state?.errors?.email}
         />
 
-        <FormField
-          label="Password"
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          required
-          errors={state?.errors?.password}
+        <ChoiceToggle
+          legend="How would you like to sign in?"
+          name="credentialType"
+          options={CREDENTIAL_OPTIONS}
+          value={credentialType}
+          onChange={setCredentialType}
+          helperText="A PIN is quicker to type on a basic phone. You can change this later."
         />
+
+        {credentialType === "pin" ? (
+          <FormField
+            label="4–6 digit PIN"
+            name="pin"
+            type="password"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={6}
+            autoComplete="new-password"
+            placeholder="1234"
+            required
+            errors={state?.errors?.pin}
+          />
+        ) : (
+          <FormField
+            label="Password"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            required
+            errors={state?.errors?.password}
+          />
+        )}
 
         <OnboardingSelect
           label="Preferred language"

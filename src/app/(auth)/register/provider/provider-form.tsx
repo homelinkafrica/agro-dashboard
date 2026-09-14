@@ -41,6 +41,20 @@ export function ProviderForm() {
           errors={state?.errors?.providerRole}
         />
 
+        <FormField
+          label="Professional title"
+          name="professionalTitle"
+          type="text"
+          placeholder="e.g. Veterinary officer"
+          aria-describedby="professionalTitle-help"
+          required
+          defaultValue={state?.values?.professionalTitle}
+          errors={state?.errors?.professionalTitle}
+        />
+        <p id="professionalTitle-help" className="-mt-3 text-sm text-zinc-500">
+          Shown on your public profile
+        </p>
+
         <ChoiceToggle
           legend="How will you work?"
           name="workMode"
@@ -74,17 +88,21 @@ export function ProviderForm() {
               defaultValue={state?.values?.services}
               errors={state?.errors?.services}
             />
-
-            <FormField
-              label="License / registration number"
-              name="licenseNumber"
-              type="text"
-              placeholder="e.g. UVB/2024/0198"
-              defaultValue={state?.values?.licenseNumber}
-              errors={state?.errors?.licenseNumber}
-            />
           </>
         )}
+
+        <FormField
+          label="License / registration number"
+          name="licenseNumber"
+          type="text"
+          placeholder="e.g. UVB/2024/0198"
+          aria-describedby="licenseNumber-help"
+          defaultValue={state?.values?.licenseNumber}
+          errors={state?.errors?.licenseNumber}
+        />
+        <p id="licenseNumber-help" className="-mt-3 text-sm text-zinc-500">
+          Required for vets — optional for other roles
+        </p>
       </FormSection>
 
       <FormSection title="Your details">

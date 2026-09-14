@@ -5,22 +5,38 @@ import { FormField } from "@/components/auth/form-field";
 import { SubmitButton } from "@/components/auth/submit-button";
 import { FieldError } from "@/components/onboarding/field-error";
 import { FormSection } from "@/components/onboarding/form-section";
+import { GpsLocationField } from "@/components/onboarding/gps-location-field";
+import { MultiSelectField } from "@/components/onboarding/multi-select-field";
 import { OnboardingSelect } from "@/components/onboarding/select-field";
 import { createFarmAction } from "@/lib/onboarding/actions";
-import { DISTRICT_OPTIONS } from "@/lib/onboarding/options";
+import { DISTRICT_OPTIONS, ENTERPRISE_TYPES } from "@/lib/onboarding/options";
 
-export function FarmSetupForm({ defaultDistrict }: { defaultDistrict: string }) {
+export function FarmSetupForm({
+  defaultDistrict,
+  suggestedName,
+}: {
+  defaultDistrict: string;
+  suggestedName: string;
+}) {
   const [state, formAction] = useActionState(createFarmAction, undefined);
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
       <FormSection title="Farm details">
+        <MultiSelectField
+          label="Enterprise type(s)"
+          name="enterpriseTypes"
+          options={ENTERPRISE_TYPES}
+          helperText="Select everything you raise or grow — most farms are mixed."
+          defaultValue={state?.values?.enterpriseTypes}
+          errors={state?.errors?.enterpriseTypes}
+        />
+
         <FormField
-          label="Farm name"
+          label="Farm name (optional)"
           name="name"
           type="text"
-          placeholder="KingsFarm"
-          required
+          placeholder={suggestedName}
           defaultValue={state?.values?.name}
           errors={state?.errors?.name}
         />
@@ -35,16 +51,20 @@ export function FarmSetupForm({ defaultDistrict }: { defaultDistrict: string }) 
         />
 
         <FormField
-          label="Farm size (hectares)"
+          label="Farm size in hectares (optional)"
           name="areaHectares"
           type="number"
           inputMode="decimal"
           min="0"
           step="0.1"
           placeholder="12.5"
-          required
           defaultValue={state?.values?.areaHectares}
           errors={state?.errors?.areaHectares}
+        />
+
+        <GpsLocationField
+          defaultLatitude={state?.values?.latitude}
+          defaultLongitude={state?.values?.longitude}
         />
 
         <FormField

@@ -9,6 +9,7 @@ export type FarmerFormValues = {
   fullName: string;
   phone: string;
   email: string;
+  credentialType: string;
   preferredLanguage: string;
   district: string;
   subCounty: string;
@@ -27,6 +28,7 @@ export type CooperativeFormValues = {
 
 export type ProviderFormValues = {
   providerRole: string;
+  professionalTitle: string;
   workMode: string;
   cooperativeCode: string;
   serviceAreas: string[];
@@ -43,6 +45,9 @@ export type FarmFormValues = {
   district: string;
   areaHectares: string;
   fieldCount: string;
+  enterpriseTypes: string[];
+  latitude: string;
+  longitude: string;
 };
 
 /** Trimmed-down cooperative shape returned by the "search by name or district" lookup. */

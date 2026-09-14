@@ -37,6 +37,16 @@ export const LANGUAGES: Option[] = [
   { value: "sw", label: "Kiswahili" },
 ];
 
+export const ENTERPRISE_TYPES: Option[] = [
+  { value: "backyard-poultry", label: "Backyard poultry" },
+  { value: "commercial-layers", label: "Commercial layers" },
+  { value: "commercial-broilers", label: "Commercial broilers" },
+  { value: "dairy-cattle", label: "Dairy cattle" },
+  { value: "beef-cattle", label: "Beef cattle" },
+  { value: "pigs", label: "Pigs" },
+  { value: "crops", label: "Crops" },
+];
+
 export const SERVICES_OFFERED: Option[] = [
   { value: "veterinary-care", label: "Veterinary care" },
   { value: "artificial-insemination", label: "Artificial insemination" },
